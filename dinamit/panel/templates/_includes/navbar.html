@@ -1,0 +1,14 @@
+<ul class="nav nav-tabs border-0 flex-column flex-lg-row">
+    <li class="nav-item">
+        <a href="{{ url_for('homepage') }}" class="nav-link {% if request.path == '/' %}active{% endif %}"><i class="fe fe-home"></i> Home</a>
+    </li>
+    <li class="nav-item">
+        <a href="{{ url_for('asset.index') }}" class="nav-link {% if "/asset" in request.path %}active{% endif %}"><i class="fe fe-box"></i> Asset</a>
+    </li>
+    <li class="nav-item">
+        <a href="{{ url_for('rule.index') }}" class="nav-link {% if "/rule" in request.path %}active{% endif %}"><i class="fe fe-book-open"></i> Rule</a>
+    </li>
+    <li class="nav-item">
+        <a href="{{ url_for('policy.index') }}" class="nav-link {% if "/policy" in request.path %}active{% endif %}"><i class="fe fe-compass"></i> Policy</a>
+    </li>
+</ul>

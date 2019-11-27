@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Asset{% endblock %}
+{% block body %}
+    <div class="my-3 my-md-5">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">
+                    Assets
+                </h1>
+            </div>
+
+            <div class="row row-cards">
+                <div class="card">
+                    <form action="{{ url_for('asset.create') }}" method="POST">
+                        {% include '_includes/alerts.html' %}
+                        <div class="card-body">
+
+                            <div class="row">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <div class="form-group col-sm-9 col-md-9">
+                                    <label class="form-label">
+                                        Name <span class="form-required">*</span>
+                                    </label>
+                                    <input name="name" type="text" class="form-control">
+                                </div>
+                                <div class="form-group col-sm-3 col-md-3">
+                                    <label class="form-label">
+                                        IP <span class="form-required">*</span>
+                                    </label>
+                                    <input type="text" name="ip" class="form-control"
+                                           data-mask="099.099.099.099"
+                                           data-mask-clearifnotmatch="true" placeholder="000.000.000.000"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-right">
+                            <button type="submit" class="btn btn-primary">Create</button>
+                        </div>
+                    </form>
+                </div>
+                <script>
+                    require(['input-mask']);
+                </script>
+                <div class="card">
+
+                    <div class="table-responsive">
+                        <table class="table card-table table-vcenter text-nowrap">
+                            <thead>
+                            <tr>
+                                <th>IP</th>
+                                <th>Name</th>
+                                <th>Created</th>
+                                <th>Queries</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for asset in assets %}
+                                <tr>
+                                    <td style="width: 10%"><span class="text-muted">{{ asset.ip }}</span></td>
+                                    <td style="width: 60%">{{ asset.name }}</td>
+                                    <td style="width: 20%">{{ asset.created_at|datetime }}</td>
+                                    <td style="width: 2%">{{ asset.queries.count() }}</td>
+                                    <td style="width: 5%">
+                                        {% if asset.is_verified %}
+                                            <span class="status-icon bg-success"></span> Verified
+                                        {% else %}
+                                            <span class="status-icon bg-danger"></span> Not Verified
+                                        {% endif %}
+                                    </td>
+                                    <td style="width: 3%">
+                                        {% if not asset.is_verified %}
+                                            <a class="icon" target="_blank"
+                                               href="http://{{ asset.get_verification_url }}">
+                                                <i class="fe fe-check"></i>
+                                            </a>
+                                        {% endif %}
+                                        <a class="icon" data-toggle="modal"
+                                           data-target="#assetDeleteModal{{ asset.id }}">
+                                            <i class="fe fe-trash"></i>
+                                        </a>
+                                    </td>
+
+                                    <div class="modal fade" id="assetDeleteModal{{ asset.id }}" tabindex="-1"
+                                         role="dialog"
+                                         aria-labelledby="assetDeleteModalLabel{{ asset.id }}" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="assetDeleteModalLabel{{ asset.id }}">
+                                                        Delete</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                    </button>
+                                                </div>
+                                                <form action="{{ url_for('asset.delete', pk=asset.id) }}" method="POST">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                    <div class="modal-body">
+                                                        You are going to delete '{{ asset.name }}'. Are you sure?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">Close
+                                                        </button>
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block ext_js %}
+
+{% endblock %}

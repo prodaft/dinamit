@@ -1,0 +1,11 @@
+{% with messages = get_flashed_messages(True) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-icon alert-{% if category == 'message' %}primary{% else %}{{ category }}{% endif %}"
+                 role="alert">
+                <i class="fe {% if category == 'success' %}fe-check{% elif category == 'danger' %}fe-alert-triangle{% else %}fe-bell{% endif %} mr-2"
+                   aria-hidden="true"></i> {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% block title %}Rule{% endblock %}
+{% block body %}
+    <div class="my-3 my-md-5">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">
+                    Rules
+                </h1>
+            </div>
+
+            <div class="row row-cards">
+                <div class="card">
+                    <form action="{{ url_for('rule.create') }}" method="POST">
+                        {% include '_includes/alerts.html' %}
+                        <div class="card-body">
+                            <div class="row">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <div class="form-group col-sm-2 col-md-2">
+                                    <label class="form-label">
+                                        Source <span class="form-required">*</span>
+                                    </label>
+                                    <select class="custom-select" name="source">
+                                        <option value="*">*</option>
+                                        {% for asset in assets %}
+                                            <option value="{{ asset.id }}">{{ asset.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-8 col-md-8">
+                                    <label class="form-label">
+                                        Destination <span class="form-required">*</span>
+                                    </label>
+                                    <input type="text" name="destination" class="form-control"/>
+                                </div>
+                                <div class="form-group col-sm-2 col-md-2">
+                                    <label class="form-label">
+                                        Action <span class="form-required">*</span>
+                                    </label>
+                                    <div class="selectgroup w-100">
+                                        <label class="selectgroup-item">
+                                            <input type="radio" name="action" value="ALLOW"
+                                                   class="selectgroup-input">
+                                            <span class="selectgroup-button selectgroup-button-icon"><i
+                                                    class="fe fe-check"></i></span>
+                                        </label>
+                                        <label class="selectgroup-item">
+                                            <input type="radio" name="action" value="DENY"
+                                                   class="selectgroup-input">
+                                            <span class="selectgroup-button selectgroup-button-icon"><i
+                                                    class="fe fe-x"></i></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="card-footer text-right">
+                            <button type="submit" class="btn btn-primary">Create</button>
+                        </div>
+                    </form>
+                </div>
+                <script>
+                    require(['input-mask']);
+                </script>
+                <div class="card">
+
+                    <div class="table-responsive">
+                        <table class="table card-table table-vcenter text-nowrap">
+                            <thead>
+                            <tr>
+                                <th>Source</th>
+                                <th>Destination</th>
+                                <th>Action</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for k, rule in rules %}
+                                <tr>
+                                    <td style="width: 20%">{{ rule.source }}</td>
+                                    <td style="width: 60%"><span class="text-muted">{{ rule.destination }}</span></td>
+                                    <td style="width: 17%">
+                                        {% if rule.action == 'ALLOW' %}
+                                            <span class="badge badge-success">Allow</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Deny</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="width: 3%">
+                                        <a class="icon" data-toggle="modal"
+                                           data-target="#ruleUpdateModal{{ k }}">
+                                            <i class="fe fe-edit"></i>
+                                        </a>
+                                        <a class="icon" data-toggle="modal"
+                                           data-target="#ruleDeleteModal{{ k }}">
+                                            <i class="fe fe-trash"></i>
+                                        </a>
+                                    </td>
+                                    <div class="modal fade" id="ruleDeleteModal{{ k }}" tabindex="-1"
+                                         role="dialog"
+                                         aria-labelledby="ruleDeleteModalLabel{{ k }}" aria-hidden="true">
+                                        <div class="modal-dialog" role="document">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="ruleDeleteModalLabel{{ k }}">
+                                                        Delete</h5>
+                                                    <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                    </button>
+                                                </div>
+                                                <form action="{{ url_for('rule.delete', k=k) }}" method="post">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                    <div class="modal-body">
+                                                        You are going to delete '{{ rule.source }}' ->
+                                                        '{{ rule.destination }}' rule. Are you sure?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">Close
+                                                        </button>
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block ext_js %}
+
+{% endblock %}

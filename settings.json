@@ -1,0 +1,23 @@
+{
+  "database": {
+    "host": "127.0.0.1",
+    "user": "dev",
+    "password": "dev",
+    "name": "dev"
+  },
+  "panel": {
+    "host": "127.0.0.1",
+    "port": 5000
+  },
+  "landpage": {
+    "host": "127.0.0.1",
+    "port": 80
+  },
+  "proxy": {
+    "blocked_ttl": 3500,
+    "landpage_ip": "127.0.0.1"
+  },
+  "global": true,
+  "mode": "dev",
+  "debug": true
+}

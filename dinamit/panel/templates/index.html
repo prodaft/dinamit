@@ -1,0 +1,288 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block body %}
+    <div class="my-3 my-md-5">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">
+                    Dashboard
+                </h1>
+            </div>
+            <div class="row row-cards">
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card p-3">
+                        <div class="d-flex align-items-center">
+                    <span class="stamp stamp-md bg-blue mr-3">
+                      <i class="fe fe-activity"></i>
+                    </span>
+                            <div>
+                                <h4 class="m-0">{{ query_count }} <small>Total Query</small></h4>
+                                <small class="text-muted">12 today</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card p-3">
+                        <div class="d-flex align-items-center">
+                    <span class="stamp stamp-md bg-green mr-3">
+                      <i class="fe fe-database"></i>
+                    </span>
+                            <div>
+                                <h4 class="m-0">7 <small>Unique Domain</small></h4>
+                                <small class="text-muted">2 first seen</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card p-3">
+                        <div class="d-flex align-items-center">
+                    <span class="stamp stamp-md bg-red mr-3">
+                      <i class="fe fe-crosshair"></i>
+                    </span>
+                            <div>
+                                <h4 class="m-0">6 <small>Bocked Request</small></h4>
+                                <small class="text-muted">1 today</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <div class="card p-3">
+                        <div class="d-flex align-items-center">
+                    <span class="stamp stamp-md bg-yellow mr-3">
+                      <i class="fe fe-globe"></i>
+                    </span>
+                            <div>
+                                <h4 class="m-0">471,581,104 <small>Categorized</small>
+                                </h4>
+                                <small class="text-muted">1,786 today</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Activity</h3>
+                        </div>
+                        <div id="chart-development-activity" style="height: 10rem"></div>
+                        <div class="table-responsive">
+                            <table class="table card-table table-striped table-vcenter">
+                                <thead>
+                                <tr>
+                                    <th>Asset</th>
+                                    <th>Domain</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for query in recent_queries %}
+                                    <tr>
+                                        <td>{{ query.asset.name }}</td>
+                                        <td>{{ query.request }}</td>
+                                        <td class="text-nowrap">{{ query.created_at|datetime }}</td>
+                                        <td class="w-1">{{ query.action.name }}</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <script>
+                        require(['c3', 'jquery'], function (c3, $) {
+                            $(document).ready(function () {
+                                var chart = c3.generate({
+                                    bindto: '#chart-development-activity', // id of chart wrapper
+                                    data: {
+                                        columns: [
+                                            // each columns data
+                                            ['data1', 0, 5, 1, 2, 7, 5, 6, 8, 24, 7, 12, 5, 6, 3, 2, 2, 6, 30, 10, 10, 15, 14, 47, 65, 55]
+                                        ],
+                                        type: 'area', // default type of chart
+                                        groups: [
+                                            ['data1', 'data2', 'data3']
+                                        ],
+                                        colors: {
+                                            'data1': tabler.colors["blue"]
+                                        },
+                                        names: {
+                                            // name of each serie
+                                            'data1': 'Requests'
+                                        }
+                                    },
+                                    axis: {
+                                        y: {
+                                            padding: {
+                                                bottom: 0,
+                                            },
+                                            show: false,
+                                            tick: {
+                                                outer: false
+                                            }
+                                        },
+                                        x: {
+                                            padding: {
+                                                left: 0,
+                                                right: 0
+                                            },
+                                            show: false
+                                        }
+                                    },
+                                    legend: {
+                                        position: 'inset',
+                                        padding: 0,
+                                        inset: {
+                                            anchor: 'top-left',
+                                            x: 20,
+                                            y: 8,
+                                            step: 10
+                                        }
+                                    },
+                                    tooltip: {
+                                        format: {
+                                            title: function (x) {
+                                                return '';
+                                            }
+                                        }
+                                    },
+                                    padding: {
+                                        bottom: 0,
+                                        left: -1,
+                                        right: -1
+                                    },
+                                    point: {
+                                        show: false
+                                    }
+                                });
+                            });
+                        });
+                    </script>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Actions</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div id="chart-donut" style="height: 12rem;"></div>
+                                </div>
+                            </div>
+                            <script>
+                                require(['c3', 'jquery'], function (c3, $) {
+                                    $(document).ready(function () {
+                                        var chart = c3.generate({
+                                            bindto: '#chart-donut', // id of chart wrapper
+                                            data: {
+                                                columns: [
+                                                    // each columns data
+                                                    ['data1', 20],
+                                                    ['data2', 80]
+                                                ],
+                                                type: 'donut', // default type of chart
+                                                colors: {
+                                                    'data1': tabler.colors["red-light"],
+                                                    'data2': tabler.colors["green-light"]
+                                                },
+                                                names: {
+                                                    // name of each serie
+                                                    'data1': 'Blocked',
+                                                    'data2': 'Allowed'
+                                                }
+                                            },
+                                            axis: {},
+                                            legend: {
+                                                show: false, //hide legend
+                                            },
+                                            padding: {
+                                                bottom: 0,
+                                                top: 0
+                                            },
+                                        });
+                                    });
+                                });
+                            </script>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Categories</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div id="chart-pie" style="height: 12rem;"></div>
+                                </div>
+                            </div>
+                            <script>
+                                require(['c3', 'jquery'], function (c3, $) {
+                                    $(document).ready(function () {
+                                        var chart = c3.generate({
+                                            bindto: '#chart-pie', // id of chart wrapper
+                                            data: {
+                                                columns: [
+                                                    // each columns data
+                                                    ['data1', 63],
+                                                    ['data2', 44],
+                                                    ['data3', 12],
+                                                    ['data4', 14]
+                                                ],
+                                                type: 'pie', // default type of chart
+                                                colors: {
+                                                    'data1': tabler.colors["blue-darker"],
+                                                    'data2': tabler.colors["blue"],
+                                                    'data3': tabler.colors["blue-light"],
+                                                    'data4': tabler.colors["blue-lighter"]
+                                                },
+                                                names: {
+                                                    // name of each serie
+                                                    'data1': 'Blogs',
+                                                    'data2': 'News',
+                                                    'data3': 'Porn',
+                                                    'data4': 'Phishing'
+                                                }
+                                            },
+                                            axis: {},
+                                            legend: {
+                                                show: false, //hide legend
+                                            },
+                                            padding: {
+                                                bottom: 0,
+                                                top: 0
+                                            },
+                                        });
+                                    });
+                                });
+                            </script>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <div class="h5">Most Visited Domain</div>
+                                    <div class="display-16 font-weight-bold mb-4">pornhub.com</div>
+                                    <div class="progress progress-sm">
+                                        <div class="progress-bar bg-info" style="width: 28%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <div class="h5">Popular Category</div>
+                                    <div class="display-16 font-weight-bold mb-4">Search Engines</div>
+                                    <div class="progress progress-sm">
+                                        <div class="progress-bar bg-red" style="width: 28%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
