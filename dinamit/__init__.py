@@ -5,6 +5,8 @@ from codecs import encode, decode
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR = os.path.abspath(os.path.join(ROOT_DIR, os.pardir))
 RUN_DIR = os.path.join(PARENT_DIR, 'run')
+if not os.path.isdir(RUN_DIR):
+    os.mkdir(RUN_DIR)
 
 SECRET_KEY_PATH = os.path.join(RUN_DIR, '.secret')
 if not os.path.isfile(SECRET_KEY_PATH):
