@@ -1,2 +1,3 @@
-# atmaca
+# Dinamit
+
 DNS Proxy
