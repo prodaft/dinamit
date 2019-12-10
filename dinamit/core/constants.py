@@ -1,8 +1,10 @@
 from enum import Enum
 
 DomainAction = Enum(
-    'DomainAction', 'ALLOW DENY CLOAK'
+    'DomainAction',
+    'ALLOW DENY CLOAK'
 )
 DomainCategory = Enum(
-    'DomainCategory', 'ADS MALICIOUS MALWARE PHISHING PORN UNCATEGORIZED'
+    'DomainCategory',
+    'ALCOHOL DATING GAMBLING PORNOGRAPHY STREAMING ADVERTISING MALICIOUS PHISHING MALWARE DRUG SPAM'
 )
