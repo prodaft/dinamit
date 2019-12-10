@@ -33,8 +33,8 @@ class BaseFeed(metaclass=MetaFeed):
         for item in items:
             parsed = self.parse(item)
             if parsed is not None:
-                target, category, is_sub, inc_sub = parsed
-                self.save(target, category, is_sub, inc_sub)
+                target, category, is_sub = parsed
+                self.save(target, category, is_sub)
         self.post_hook()
 
     def pre_hook(self):
@@ -53,11 +53,11 @@ class BaseFeed(metaclass=MetaFeed):
         raise NotImplementedError
 
     @db_session
-    def save(self, target, category, is_sub, inc_sub):
+    def save(self, target, category, is_sub):
         d = db.Domain.select(lambda x: x.name == target).first()
-        if not d or d.category == DomainCategory.UNCATEGORIZED:
+        if not d:
             Domain(
-                name=target, category=category, is_subdomain=is_sub, include_subdomains=inc_sub, is_categorized=True
+                name=target, category=category, is_subdomain=is_sub
             )
             db.commit()
             return True
@@ -87,7 +87,6 @@ class TextFeed(BaseFeed):
                 return None
         registered_domain = extractor(clean_item).registered_domain
         is_subdomain = registered_domain != clean_item
-        if is_subdomain:
-            return clean_item, self.CATEGORY, is_subdomain, False
-        return registered_domain, self.CATEGORY, is_subdomain, True
+        returned_item = clean_item if is_subdomain else registered_domain
+        return returned_item, self.CATEGORY, is_subdomain
 

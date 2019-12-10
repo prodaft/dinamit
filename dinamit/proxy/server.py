@@ -19,11 +19,10 @@ class DNSProxyServer(server.DNSServerFactory):
         query = message.queries[0]
         raw_query = str(query.name)
 
+        asset = db.Asset.select(lambda a: a.ip == client_ip and a.is_verified).first()
         if GLOBAL_SETTINGS['internal']:
             client = db.Client.select().first()
-            asset = None
         else:
-            asset = db.Asset.select(lambda a: a.ip == client_ip and a.is_verified).first()
             if not asset:
                 return self.returnAnswer(raw_query, message, proto, address)
             client = asset.client
@@ -35,7 +34,7 @@ class DNSProxyServer(server.DNSServerFactory):
         domain = db.Domain.select(lambda d: d.name == extracted).first()
         if not domain and is_subdomain:
             domain = db.Domain.select(lambda d: d.name == raw_query).first()
-        elif domain and domain.include_subdomains:
+        elif domain and not domain.is_subdomain:
             pass
         else:
             domain = None

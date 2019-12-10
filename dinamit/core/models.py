@@ -63,8 +63,6 @@ class Domain(db.Entity):
     name = Required(str)
     category = Required(DomainCategory)
     queries = Set('Query')
-    include_subdomains = Required(bool, default=lambda: False)
-    is_categorized = Required(bool, default=lambda: False)
     is_subdomain = Required(bool, default=lambda: False)
     created_at = Required(datetime, default=lambda: datetime.now())
 
