@@ -5,6 +5,10 @@
     "password": "dev",
     "name": "dev"
   },
+  "broker": {
+    "uri": "redis://127.0.0.1:6379",
+    "log_level": "INFO"
+  },
   "panel": {
     "host": "127.0.0.1",
     "port": 5000
@@ -15,9 +19,19 @@
   },
   "proxy": {
     "blocked_ttl": 3500,
-    "landpage_ip": "127.0.0.1"
+    "landpage_ip": "127.0.0.1",
+    "listen": {
+      "host": "127.0.0.1",
+      "port": 10053
+    },
+    "upstream": [
+      "8.8.8.8", "8.8.4.4"
+    ]
   },
-  "global": true,
+  "credentials": {
+
+  },
+  "internal": true,
   "mode": "dev",
   "debug": true
 }
