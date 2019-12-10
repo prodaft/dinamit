@@ -1,8 +1,7 @@
 from twisted.names import dns
 from twisted.names import server
-from twisted.python import log
 from dinamit import RUN_DIR, GLOBAL_SETTINGS
-from dinamit.core.constants import DomainAction, DomainCategory
+from dinamit.core.constants import DomainAction
 from dinamit.core.models import db
 from dinamit.core.utils import create_rule_hash
 from pony.orm import db_session
@@ -20,31 +19,41 @@ class DNSProxyServer(server.DNSServerFactory):
         query = message.queries[0]
         raw_query = str(query.name)
 
-        asset = db.Asset.select(lambda a: a.ip == client_ip and a.is_verified).first()
-        if not asset:
-            return self.returnAnswer(raw_query, message, proto, address)
+        if GLOBAL_SETTINGS['internal']:
+            client = db.Client.select().first()
+            asset = None
+        else:
+            asset = db.Asset.select(lambda a: a.ip == client_ip and a.is_verified).first()
+            if not asset:
+                return self.returnAnswer(raw_query, message, proto, address)
+            client = asset.client
 
-        client = asset.client
+        policy = client.policy
         query_type = dns.QUERY_TYPES.get(query.type, dns.EXT_QUERIES.get(query.type, 'UNKNOWN {}'.format(query.type)))
         extracted = extractor(raw_query).registered_domain
+        is_subdomain = extracted != raw_query
         domain = db.Domain.select(lambda d: d.name == extracted).first()
-
-        if not domain:
-            domain = db.Domain(name=extracted, category=DomainCategory['Uncategorized'])
-            db.commit()
+        if not domain and is_subdomain:
+            domain = db.Domain.select(lambda d: d.name == raw_query).first()
+        elif domain and domain.include_subdomains:
+            pass
+        else:
+            domain = None
 
         rh = create_rule_hash(client_ip, raw_query)
 
         refused = False
-        reason = 'N/A'
+        reason = 'UNCATEGORIZED'
         if rh in client.rules and client.rules[rh]['action'] == 'DENY':
             refused = True
-            reason = 'Rule'
-        else:
-            # check policy
-            pass
+            reason = 'RULE'
 
-        action = DomainAction['DENY'] if refused else DomainAction['ALLOW']
+        allowed_categories = policy.get('ALLOWED_CATEGORIES', [])
+        if domain and domain.category not in allowed_categories:
+            refused = True
+            reason = domain.category.name
+
+        action = DomainAction.DENY if refused else DomainAction.ALLOW
         client.queries.create(
             request=raw_query, dns_type=query_type, action=action, reason=reason, asset=asset, domain=domain
         )
