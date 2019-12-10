@@ -8,6 +8,7 @@ from dinamit.landpage.app import app as landapp
 from dinamit.core.models import db, EnumConverter
 from dinamit.panel.helpers import create_super_user
 from dinamit.proxy.server import DNSProxyServer
+from dinamit.tasks import celery
 from pony.flask import Pony
 from pony.orm import db_session
 from pony.orm.dbapiprovider import OperationalError
@@ -29,6 +30,11 @@ if __name__ == '__main__':
 
     parser.add_argument(
         '--create-super-user', help='Create super user', dest='create_super_user',
+        action='store_true', default=False
+    )
+
+    parser.add_argument(
+        '--init-feed', help='Init feed database', dest='init_feed',
         action='store_true', default=False
     )
 
@@ -62,8 +68,8 @@ if __name__ == '__main__':
         option_flag = True
         email = input('Email: ').strip()
         password = getpass('Password: ').strip()
-        first_name = input('First Name(optional): ').strip()
-        last_name = input('Last Name(optional): ').strip()
+        first_name = input('First Name: ').strip()
+        last_name = input('Last Name: ').strip()
         with db_session:
             created = create_super_user(
                 email, decode(bcrypt.generate_password_hash(password), 'utf-8'), first_name, last_name
@@ -72,6 +78,16 @@ if __name__ == '__main__':
             print('[+] Super user created.')
         else:
             print('[-] Super user already exists.')
+
+    if args.worker:
+        option_flag = True
+        argv = [
+            'worker',
+            '-E',
+            '-B',
+            '--loglevel={}'.format(GLOBAL_SETTINGS['broker']['log_level'])
+        ]
+        celery.worker_main(argv)
 
     if args.panel:
         option_flag = True
@@ -96,13 +112,16 @@ if __name__ == '__main__':
     if args.proxy:
         option_flag = True
         log.startLogging(sys.stdout)
-        resolver = client.Resolver(resolv='/etc/resolv.conf')
+        resolver = client.Resolver(
+            servers=[(server, 53) for server in GLOBAL_SETTINGS['proxy']['upstream']]
+        )
         factory = DNSProxyServer(clients=[resolver], verbose=0)
         protocol = dns.DNSDatagramProtocol(factory)
 
-        reactor.listenUDP(10053, protocol)
-        reactor.listenTCP(10053, protocol)
+        reactor.listenUDP(GLOBAL_SETTINGS['proxy']['listen']['port'], protocol)
+        reactor.listenTCP(GLOBAL_SETTINGS['proxy']['listen']['port'], protocol)
         reactor.run()
+
 
     if not option_flag:
         parser.print_usage()
