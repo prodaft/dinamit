@@ -8,8 +8,18 @@
 Open Source DNS Firewall
 
 **How to Contribute**
----
+---------------------
 
 1. Clone repository and create a new branch: `$ git checkout https://github.com/invictuseurope/dinamit -b <new_branch_name>`.
 2. Make changes
 3. Submit Pull Request with comprehensive description of changes
+
+
+**Demo**
+--------
+
+[https://demo.dinamit.dev](https://demo.dinamit.dev)
+
+__email__ : test@test.com
+
+__password__ : test
